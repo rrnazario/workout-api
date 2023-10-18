@@ -35,7 +35,7 @@ impl Fairing for Authorization {
             let result = JwtHelper::decode_jwt(token.to_owned());
 
             if result.is_err() {
-                let u = Origin::parse("/util/fail").unwrap();
+                let u = Origin::parse("/fail/unauthorized").unwrap();
                 request.set_uri(u);
                 request.set_method(Method::Put);
 
