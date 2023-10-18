@@ -1,11 +1,23 @@
-use crate::connect_async;
-use crate::models::model::*;
+use crate::schema::exercise::deleted;
+use crate::{infrastructure::persistence::connect_async, schema::exercise};
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 use mediator::{async_trait, AsyncRequestHandler, DefaultAsyncMediator, Request};
+use serde::{Deserialize, Serialize};
 
-pub struct GetAllExercisesQuery();
-impl Request<Vec<Cliente>> for GetAllExercisesQuery {}
+pub struct GetAllExercisesQuery;
+#[derive(Queryable, Serialize, Deserialize, Selectable, Default)]
+#[diesel(table_name = exercise)]
+pub struct Exercise {
+    id: i32,
+    name: String,
+}
+#[derive(Serialize, Deserialize, Default)]
+pub struct ExerciseResponse {
+    exercises: Option<Vec<Exercise>>,
+}
+
+impl Request<ExerciseResponse> for GetAllExercisesQuery {}
 
 pub struct GetAllExercisesQueryHandler(DefaultAsyncMediator);
 
@@ -16,17 +28,19 @@ impl GetAllExercisesQueryHandler {
 }
 
 #[async_trait]
-impl AsyncRequestHandler<GetAllExercisesQuery, Vec<Cliente>> for GetAllExercisesQueryHandler {
-    async fn handle(&mut self, _req: GetAllExercisesQuery) -> Vec<Cliente> {
+impl AsyncRequestHandler<GetAllExercisesQuery, ExerciseResponse> for GetAllExercisesQueryHandler {
+    async fn handle(&mut self, _req: GetAllExercisesQuery) -> ExerciseResponse {
         let connection = &mut connect_async().await;
 
-        let client = cliente
-            .filter(excluido.eq(0))
-            .select(Cliente::as_select())
-            .load::<Cliente>(connection)
+        let exercises = exercise::table
+            .filter(deleted.eq(0))
+            .select(Exercise::as_select())
+            .load::<Exercise>(connection)
             .await
-            .expect("GetAllOrcamentosQueryHandler_clientes");
+            .expect("GetAllExercisesQuery");
 
-        client
+        ExerciseResponse {
+            exercises: Some(exercises),
+        }
     }
 }

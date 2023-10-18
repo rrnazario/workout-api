@@ -8,10 +8,14 @@ use middleware::cors::Cors;
 use rocket::serde::json::{serde_json::json, Value};
 use rocket::Request;
 
+use crate::features::exercises::routes::get_all_exercises;
+
 mod helpers;
 mod middleware;
 mod models;
 mod features;
+mod schema;
+mod infrastructure;
 
 #[catch(500)]
 async fn server_error<'a>(req: &'a Request<'_>) -> Value {
@@ -43,6 +47,9 @@ async fn rocket() -> _ {
         .attach(Authorization)
 
         .mount("/", routes![all_options])
+
+
+        .mount("/", routes![get_all_exercises])
 
         .register("/", catchers![not_found, server_error])
 }
