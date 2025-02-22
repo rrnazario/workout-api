@@ -1,8 +1,10 @@
+// @generated automatically by Diesel CLI.
+
 diesel::table! {
     exercise (id) {
-        id -> Integer,
+        id -> Int4,
         name -> Varchar,
-        deleted -> SmallInt,
-        lastupdatedate -> Nullable<Varchar>,        
+        deleted -> Bool,
+        lastudpdatedate -> Nullable<Varchar>,
     }
 }
