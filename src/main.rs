@@ -16,6 +16,7 @@ mod infrastructure;
 mod middleware;
 mod models;
 mod schema;
+mod guards;
 
 #[launch]
 async fn rocket() -> _ {
